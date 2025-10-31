@@ -86,103 +86,172 @@
             <span id="notification-text"></span>
         </div>
 
+        <!-- 服务需求单表单 -->
+        <div id="service-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8">
+            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
+                Pooling服务需求单 <small class="text-gray-500 text-base font-normal">Pooling Service Booking</small>
+            </h2>
+            <form id="service-form-data" method="post" action="/submit_service_form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">车号 (Finas)</label>
+                        <input type="text" name="finas" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">车辆位置 (Vehicle Location)</label>
+                        <input type="text" name="vehicle_location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">钥匙位置 (Key Position)</label>
+                        <input type="text" name="key_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预计交车时间 (Vehicle Hand Time)</label>
+                        <input type="datetime-local" name="hand_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-4">服务内容 (Service Contents)</h3>
+                    <div class="space-y-3 pl-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="service-refuel" name="service_refuel" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                            <label for="service-refuel" class="ml-3 text-gray-700 cursor-pointer">
+                                外部加油 <span class="text-gray-500 text-sm">(需求加油量: <input type="number" min="0" step="0.1" name="refueling_amount" class="w-20 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> L)</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="service-charge" name="service_charge" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                            <label for="service-charge" class="ml-3 text-gray-700 cursor-pointer">
+                                充电 <span class="text-gray-500 text-sm">(充电到: <input type="number" min="0" max="100" name="charge_percentage" class="w-16 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> %)</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="service-start" name="service_start" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                            <label for="service-start" class="ml-3 text-gray-700 cursor-pointer">搭电</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="service-move" name="service_move" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                            <label for="service-move" class="ml-3 text-gray-700 cursor-pointer">TCC内挪车</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="service-wash" name="service_wash" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                            <label for="service-wash" class="ml-3 text-gray-700 cursor-pointer">洗车</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="service-repair" name="service_repair" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                            <label for="service-repair" class="ml-3 text-gray-700 cursor-pointer">车辆维修</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetForm()">
+                        <i class="fa fa-save mr-1"></i> 保存草稿
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                        <i class="fa fa-check mr-1"></i> 提交需求
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    <!-- 运输业务单表单 -->
-    <div id="transport-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8 hidden slide-in">
-        <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-            运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
-        </h2>
-        <form id="transport-form-data" method="post" action="/submit_transport_form">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">申请人 (Requestor)</label>
-                    <input type="text" name="requestor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+        <!-- 运输业务单表单 (初始隐藏) -->
+        <div id="transport-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8 hidden slide-in">
+            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
+                运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
+            </h2>
+            <form id="transport-form-data" method="post" action="/submit_transport_form">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">申请人 (Requestor)</label>
+                        <input type="text" name="requestor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">部门 (Department)</label>
+                        <input type="text" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">车号 (FiNAS)</label>
+                        <input type="text" name="finas_transport" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">部门 (Department)</label>
-                    <input type="text" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发车日期 (Date)</label>
+                        <input type="date" name="departure_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发车时间 (Time)</label>
+                        <input type="time" name="departure_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">出发城市</label>
+                        <input type="text" name="departure_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">到达城市</label>
+                        <input type="text" name="arrival_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">车号 (FiNAS)</label>
-                    <input type="text" name="finas_transport" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发车地址 (Departure)</label>
+                        <textarea name="departure_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">目的地 (Destination)</label>
+                        <textarea name="destination_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
+                    </div>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">发车日期 (Date)</label>
-                    <input type="date" name="departure_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发车人 (Contact Person)</label>
+                        <input type="text" name="contact_person" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">联系电话 (Mobile)</label>
+                        <input type="tel" name="contact_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">收车人 (Receiver)</label>
+                        <input type="text" name="receiver" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">收车人电话 (Mobile)</label>
+                        <input type="tel" name="receiver_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">发车时间 (Time)</label>
-                    <input type="time" name="departure_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">特殊需求</label>
+                    <textarea name="special_requirements" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="3"></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">出发城市</label>
-                    <input type="text" name="departure_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="confidential" name="confidential" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="confidential" class="ml-2 text-gray-700 cursor-pointer">保密车 (Confidential)</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="car-cover" name="car_cover" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="car-cover" class="ml-2 text-gray-700 cursor-pointer">车衣 (Cover)</label>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">到达城市</label>
-                    <input type="text" name="arrival_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                
+                <div class="flex justify-end">
+                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" id="back-to-service">
+                        <i class="fa fa-arrow-left mr-1"></i> 返回
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                        <i class="fa fa-check mr-1"></i> 提交运输单
+                    </button>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">发车地址 (Departure)</label>
-                    <textarea name="departure_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">目的地 (Destination)</label>
-                    <textarea name="destination_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">发车人 (Contact Person)</label>
-                    <input type="text" name="contact_person" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">联系电话 (Mobile)</label>
-                    <input type="tel" name="contact_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">收车人 (Receiver)</label>
-                    <input type="text" name="receiver" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">收车人电话 (Mobile)</label>
-                    <input type="tel" name="receiver_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">特殊需求</label>
-                <textarea name="special_requirements" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="3"></textarea>
-            </div>
-
-            <div class="flex flex-wrap gap-4 mb-8">
-                <div class="flex items-center">
-                    <input type="checkbox" id="confidential" name="confidential" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                    <label for="confidential" class="ml-2 text-gray-700 cursor-pointer">保密车 (Confidential)</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="car-cover" name="car_cover" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                    <label for="car-cover" class="ml-2 text-gray-700 cursor-pointer">车衣 (Cover)</label>
-                </div>
-            </div>
-
-            <div class="flex justify-end">
-                <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetTransportForm()">
-                    <i class="fa fa-arrow-left mr-1"></i> 返回
-                </button>
-                <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
-                    <i class="fa fa-check mr-1"></i> 提交运输单
-                </button>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
     </main>
 
     <!-- 页脚 -->
@@ -223,32 +292,19 @@
             
             // 切换到运输业务单
             function switchToTransport() {
-                // 更新标签状态
                 serviceTab.classList.remove('tab-active');
                 transportTab.classList.add('tab-active');
-                
-                // 隐藏服务需求单，显示运输业务单
                 serviceForm.classList.add('hidden');
                 transportForm.classList.remove('hidden');
-                
-                // 滚动到顶部
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-                // 显示通知
-                showNotification('已自动跳转至运输业务单，因为您选择了外部加油服务');
             }
             
             // 切换到服务需求单
             function switchToService() {
-                // 更新标签状态
                 transportTab.classList.remove('tab-active');
                 serviceTab.classList.add('tab-active');
-                
-                // 隐藏运输业务单，显示服务需求单
                 transportForm.classList.add('hidden');
                 serviceForm.classList.remove('hidden');
-                
-                // 滚动到顶部
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
@@ -256,6 +312,7 @@
             refuelCheckbox.addEventListener('change', function() {
                 if (this.checked) {
                     switchToTransport();
+                    showNotification('已自动跳转至运输业务单，因为您选择了外部加油服务');
                 }
             });
             
@@ -265,7 +322,51 @@
             
             // 返回按钮事件
             backButton.addEventListener('click', switchToService);
+
+            // 表单提交后处理
+            const serviceFormElement = document.getElementById('service-form-data');
+            const transportFormElement = document.getElementById('transport-form-data');
+
+            serviceFormElement.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                try {
+                    const response = await fetch('/submit_service_form', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    showNotification(result.message);
+                    this.reset(); // 提交后重置表单
+                } catch (error) {
+                    showNotification('提交失败，请重试');
+                    console.error('提交错误:', error);
+                }
+            });
+
+            transportFormElement.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                try {
+                    const response = await fetch('/submit_transport_form', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    showNotification(result.message);
+                    this.reset(); // 提交后重置表单
+                } catch (error) {
+                    showNotification('提交失败，请重试');
+                    console.error('提交错误:', error);
+                }
+            });
         });
+
+        // 重置表单函数
+        function resetForm() {
+            document.getElementById('service-form-data').reset();
+            showNotification('已保存草稿（实际功能需后端支持）');
+        }
     </script>
 </body>
 </html>
