@@ -3,123 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel 单元格跳转助手</title>
-    <link href="https://cdn.bootcdn.net/ajax/libs/daisyui/4.12.10/full.min.css" rel="stylesheet">
-    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>服务需求与运输业务系统</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标 -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义样式 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .form-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .tab-active {
+                @apply border-primary text-primary font-medium;
+            }
+            .slide-in {
+                animation: slideIn 0.5s ease forwards;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(20px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <div class="container mx-auto p-4 max-w-6xl">
-        <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">
-            <i class="fas fa-table mr-2"></i>Excel 单元格跳转助手
-        </h1>
-        
-        <!-- 文件上传区域 -->
-        <div class="card bg-base-100 shadow-xl mb-6">
-            <div class="card-body">
-                <h2 class="card-title">
-                    <i class="fas fa-upload"></i> 上传Excel文件
-                </h2>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" class="file-input file-input-bordered w-full max-w-xs">
-                <button onclick="loadExcel()" class="btn btn-primary">
-                    <i class="fas fa-file-excel mr-2"></i>加载Excel
+<body class="bg-gray-50 min-h-screen font-sans text-dark">
+    <!-- 页面头部 -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-12">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-primary">
+                <i class="fa fa-car mr-2"></i>车辆服务管理系统
+            </h1>
+            <div class="text-sm text-gray-500">
+                <span id="current-date"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto py-8 px-4 md:px-12">
+        <!-- 表单标签页导航 -->
+        <div class="mb-8 border-b border-gray-200">
+            <ul class="flex flex-wrap -mb-px" id="form-tabs">
+                <li class="mr-2">
+                    <button id="tab-service" class="tab-active inline-block py-4 px-5 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 transition">
+                        <i class="fa fa-wrench mr-2"></i>服务需求单
+                    </button>
+                </li>
+                <li class="mr-2">
+                    <button id="tab-transport" class="inline-block py-4 px-5 border-b-2 border-transparent rounded-t-lg text-gray-500 hover:text-gray-600 hover:border-gray-300 transition">
+                        <i class="fa fa-truck mr-2"></i>运输业务单
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 提示信息 -->
+        <div id="notification" class="hidden mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
+            <i class="fa fa-info-circle mr-2"></i>
+            <span id="notification-text"></span>
+        </div>
+
+        <!-- 服务需求单表单 -->
+        <div id="service-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8">
+            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
+                Pooling服务需求单 <small class="text-gray-500 text-base font-normal">Pooling Service Booking</small>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">车号 (Finas)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">车辆位置 (Vehicle Location)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">钥匙位置 (Key Position)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">预计交车时间 (Vehicle Hand Time)</label>
+                    <input type="datetime-local" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4">服务内容 (Service Contents)</h3>
+                <div class="space-y-3 pl-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="service-refuel" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="service-refuel" class="ml-3 text-gray-700 cursor-pointer">
+                            外部加油 <span class="text-gray-500 text-sm">(需求加油量: <input type="number" min="0" step="0.1" class="w-20 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> L)</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="service-charge" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="service-charge" class="ml-3 text-gray-700 cursor-pointer">
+                            充电 <span class="text-gray-500 text-sm">(充电到: <input type="number" min="0" max="100" class="w-16 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> %)</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="service-start" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="service-start" class="ml-3 text-gray-700 cursor-pointer">搭电</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="service-move" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="service-move" class="ml-3 text-gray-700 cursor-pointer">TCC内挪车</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="service-wash" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="service-wash" class="ml-3 text-gray-700 cursor-pointer">洗车</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="service-repair" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                        <label for="service-repair" class="ml-3 text-gray-700 cursor-pointer">车辆维修</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3">
+                    <i class="fa fa-save mr-1"></i> 保存草稿
+                </button>
+                <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                    <i class="fa fa-check mr-1"></i> 提交需求
                 </button>
             </div>
         </div>
 
-        <!-- 工作表选择 -->
-        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="sheetSelector">
-            <div class="card-body">
-                <h2 class="card-title">
-                    <i class="fas fa-list"></i> 选择工作表
-                </h2>
-                <select id="sheetSelect" class="select select-bordered w-full max-w-xs" onchange="displaySheet()">
-                    <option disabled selected>请选择工作表</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Excel表格显示区域 -->
-        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="excelDisplay">
-            <div class="card-body">
-                <h2 class="card-title">
-                    <i class="fas fa-table"></i> Excel表格
-                </h2>
-                <div class="overflow-x-auto">
-                    <table id="excelTable" class="table table-zebra">
-                        <thead id="tableHead"></thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
+        <!-- 运输业务单表单 (初始隐藏) -->
+        <div id="transport-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8 hidden slide-in">
+            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
+                运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">申请人 (Requestor)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">部门 (Department)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">车号 (FiNAS)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
                 </div>
             </div>
-        </div>
-
-        <!-- 跳转配置区域 -->
-        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="jumpConfig">
-            <div class="card-body">
-                <h2 class="card-title">
-                    <i class="fas fa-link"></i> 跳转配置
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="label">
-                            <span class="label-text">目标文件路径</span>
-                        </label>
-                        <input type="text" id="targetFile" class="input input-bordered w-full" 
-                               placeholder="留空表示当前文件">
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text">目标工作表</span>
-                        </label>
-                        <input type="text" id="targetSheet" class="input input-bordered w-full" 
-                               placeholder="工作表名称">
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text">目标单元格</span>
-                        </label>
-                        <input type="text" id="targetCell" class="input input-bordered w-full" 
-                               placeholder="如: A1">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="saveJumpConfig()" class="btn btn-success">
-                            <i class="fas fa-save mr-2"></i>保存配置
-                        </button>
-                    </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">发车日期 (Date)</label>
+                    <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">发车时间 (Time)</label>
+                    <input type="time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">出发城市</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">到达城市</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
                 </div>
             </div>
-        </div>
-
-        <!-- 操作按钮 -->
-        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="actionButtons">
-            <div class="card-body">
-                <h2 class="card-title">
-                    <i class="fas fa-cogs"></i> 操作
-                </h2>
-                <div class="flex gap-2">
-                    <button onclick="addCheckboxToSelected()" class="btn btn-info">
-                        <i class="fas fa-check-square mr-2"></i>添加复选框
-                    </button>
-                    <button onclick="exportExcel()" class="btn btn-success">
-                        <i class="fas fa-download mr-2"></i>导出Excel
-                    </button>
-                    <button onclick="testJump()" class="btn btn-warning">
-                        <i class="fas fa-play mr-2"></i>测试跳转
-                    </button>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">发车地址 (Departure)</label>
+                    <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">目的地 (Destination)</label>
+                    <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
                 </div>
             </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">发车人 (Contact Person)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">联系电话 (Mobile)</label>
+                    <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">收车人 (Receiver)</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">收车人电话 (Mobile)</label>
+                    <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">特殊需求</label>
+                <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="3"></textarea>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 mb-8">
+                <div class="flex items-center">
+                    <input type="checkbox" id="confidential" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                    <label for="confidential" class="ml-2 text-gray-700 cursor-pointer">保密车 (Confidential)</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="car-cover" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
+                    <label for="car-cover" class="ml-2 text-gray-700 cursor-pointer">车衣 (Cover)</label>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" id="back-to-service">
+                    <i class="fa fa-arrow-left mr-1"></i> 返回
+                </button>
+                <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                    <i class="fa fa-check mr-1"></i> 提交运输单
+                </button>
+            </div>
         </div>
+    </main>
 
-        <!-- 状态提示 -->
-        <div id="status" class="alert hidden">
-            <i class="fas fa-info-circle"></i>
-            <span id="statusText"></span>
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 py-6 px-6 md:px-12">
+        <div class="container mx-auto text-center text-gray-500 text-sm">
+            <p>© 2025 车辆服务管理系统 - 版权所有</p>
         </div>
-    </div>
+    </footer>
 
-    <!-- 引入SheetJS -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // 设置当前日期
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', options);
+            
+            // 获取DOM元素
+            const serviceTab = document.getElementById('tab-service');
+            const transportTab = document.getElementById('tab-transport');
+            const serviceForm = document.getElementById('service-form');
+            const transportForm = document.getElementById('transport-form');
+            const refuelCheckbox = document.getElementById('service-refuel');
+            const backButton = document.getElementById('back-to-service');
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            // 显示通知
+            function showNotification(message) {
+                notificationText.textContent = message;
+                notification.classList.remove('hidden');
+                notification.classList.add('slide-in');
+                
+                // 3秒后自动隐藏通知
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // 切换到运输业务单
+            function switchToTransport() {
+                // 更新标签状态
+                serviceTab.classList.remove('tab-active');
+                transportTab.classList.add('tab-active');
+                
+                // 隐藏服务需求单，显示运输业务单
+                serviceForm.classList.add('hidden');
+                transportForm.classList.remove('hidden');
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // 显示通知
+                showNotification('已自动跳转至运输业务单，因为您选择了外部加油服务');
+            }
+            
+            // 切换到服务需求单
+            function switchToService() {
+                // 更新标签状态
+                transportTab.classList.remove('tab-active');
+                serviceTab.classList.add('tab-active');
+                
+                // 隐藏运输业务单，显示服务需求单
+                transportForm.classList.add('hidden');
+                serviceForm.classList.remove('hidden');
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            
+            // 外部加油复选框事件
+            refuelCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    switchToTransport();
+                }
+            });
+            
+            // 标签切换事件
+            serviceTab.addEventListener('click', switchToService);
+            transportTab.addEventListener('click', switchToTransport);
+            
+            // 返回按钮事件
+            backButton.addEventListener('click', switchToService);
+        });
+    </script>
 </body>
 </html>
