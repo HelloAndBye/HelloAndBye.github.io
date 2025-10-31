@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel 单元格跳转助手</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/daisyui/4.12.10/full.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto p-4 max-w-6xl">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">
+            <i class="fas fa-table mr-2"></i>Excel 单元格跳转助手
+        </h1>
+        
+        <!-- 文件上传区域 -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-upload"></i> 上传Excel文件
+                </h2>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" class="file-input file-input-bordered w-full max-w-xs">
+                <button onclick="loadExcel()" class="btn btn-primary">
+                    <i class="fas fa-file-excel mr-2"></i>加载Excel
+                </button>
+            </div>
+        </div>
+
+        <!-- 工作表选择 -->
+        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="sheetSelector">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-list"></i> 选择工作表
+                </h2>
+                <select id="sheetSelect" class="select select-bordered w-full max-w-xs" onchange="displaySheet()">
+                    <option disabled selected>请选择工作表</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Excel表格显示区域 -->
+        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="excelDisplay">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-table"></i> Excel表格
+                </h2>
+                <div class="overflow-x-auto">
+                    <table id="excelTable" class="table table-zebra">
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 跳转配置区域 -->
+        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="jumpConfig">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-link"></i> 跳转配置
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="label">
+                            <span class="label-text">目标文件路径</span>
+                        </label>
+                        <input type="text" id="targetFile" class="input input-bordered w-full" 
+                               placeholder="留空表示当前文件">
+                    </div>
+                    <div>
+                        <label class="label">
+                            <span class="label-text">目标工作表</span>
+                        </label>
+                        <input type="text" id="targetSheet" class="input input-bordered w-full" 
+                               placeholder="工作表名称">
+                    </div>
+                    <div>
+                        <label class="label">
+                            <span class="label-text">目标单元格</span>
+                        </label>
+                        <input type="text" id="targetCell" class="input input-bordered w-full" 
+                               placeholder="如: A1">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="saveJumpConfig()" class="btn btn-success">
+                            <i class="fas fa-save mr-2"></i>保存配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="card bg-base-100 shadow-xl mb-6 hidden" id="actionButtons">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-cogs"></i> 操作
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="addCheckboxToSelected()" class="btn btn-info">
+                        <i class="fas fa-check-square mr-2"></i>添加复选框
+                    </button>
+                    <button onclick="exportExcel()" class="btn btn-success">
+                        <i class="fas fa-download mr-2"></i>导出Excel
+                    </button>
+                    <button onclick="testJump()" class="btn btn-warning">
+                        <i class="fas fa-play mr-2"></i>测试跳转
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态提示 -->
+        <div id="status" class="alert hidden">
+            <i class="fas fa-info-circle"></i>
+            <span id="statusText"></span>
+        </div>
+    </div>
+
+    <!-- 引入SheetJS -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
