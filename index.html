@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pooling服务需求单</title>
-    <!-- 引入Tailwind CSS -->
+    <!-- 引入Tailwind CSS（样式库） -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入Font Awesome图标 -->
+    <!-- 引入Font Awesome（图标库） -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
-    <!-- 配置Tailwind自定义样式 -->
+    <!-- 自定义Tailwind样式 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#165DFF',
-                        secondary: '#36CFC9',
-                        neutral: '#F5F7FA',
-                        dark: '#1D2129',
+                        primary: '#165DFF',    // 主色调（蓝色）
+                        secondary: '#36CFC9',  // 辅助色（青色）
+                        neutral: '#F5F7FA',    // 中性色（浅灰）
+                        dark: '#1D2129',       // 深色（文字）
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -30,41 +30,41 @@
     
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .form-shadow {
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            }
-            .tab-active {
-                @apply border-primary text-primary font-medium;
-            }
-            .slide-in {
-                animation: slideIn 0.5s ease forwards;
-            }
-            @keyframes slideIn {
-                from { transform: translateX(20px); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
+            .content-auto { content-visibility: auto; }
+            .form-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+            .tab-active { @apply border-primary text-primary font-medium; }
+            .slide-in { animation: slideIn 0.5s ease forwards; }
+            @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-dark">
-    <!-- 页面头部 -->
+    <!-- 页面头部（含下载按钮） -->
     <header class="bg-white shadow-sm py-4 px-6 md:px-12">
-        <div class="container mx-auto flex justify-between items-center">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-primary">
-                <i class="fa fa-car mr-2"></i>Pooling服务需求单
+                <i class="fa fa-car mr-2"></i>车辆服务管理系统
             </h1>
-            <div class="text-sm text-gray-500">
-                <span id="current-date"></span>
+            <div class="flex items-center space-x-4">
+                <!-- 下载Excel按钮（带提示） -->
+                <a href="/download_excel" class="flex items-center px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition shadow-sm" title="无数据时下载空白模板，有数据时下载包含所有记录的文件">
+                    <i class="fa fa-download mr-2"></i>下载Excel（模板/数据）
+                </a>
+                <!-- 下载说明 -->
+                <div class="mt-2 text-xs text-gray-500 text-center md:text-left">
+                    <span>📌 无数据→空白模板 | 有数据→完整数据</span>
+                </div>
+                <!-- 当前日期 -->
+                <div class="text-sm text-gray-500">
+                    <span id="current-date"></span>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- 主内容区 -->
     <main class="container mx-auto py-8 px-4 md:px-12">
-        <!-- 表单标签页导航 -->
+        <!-- 标签页导航 -->
         <div class="mb-8 border-b border-gray-200">
             <ul class="flex flex-wrap -mb-px" id="form-tabs">
                 <li class="mr-2">
@@ -80,10 +80,15 @@
             </ul>
         </div>
 
-        <!-- 提示信息 -->
+        <!-- 提示信息区域 -->
         <div id="notification" class="hidden mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
             <i class="fa fa-info-circle mr-2"></i>
             <span id="notification-text"></span>
+        </div>
+        <!-- 错误提示区域 -->
+        <div id="error-notification" class="hidden mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+            <i class="fa fa-exclamation-circle mr-2"></i>
+            <span id="error-text"></span>
         </div>
 
         <!-- 服务需求单表单 -->
@@ -108,14 +113,6 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">预计交车时间 (Vehicle Hand Time)</label>
                         <input type="datetime-local" name="hand_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">取车联系人 (Vehicle Pick Up Contact Person)</label>
-                        <input type="text" name="key_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">车辆归还联系人 (Vehicle Return Contact Person)</label>
-                        <input type="text" name="key_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
                     </div>
                 </div>
                 
@@ -164,7 +161,7 @@
             </form>
         </div>
 
-        <!-- 运输业务单表单 (初始隐藏) -->
+        <!-- 运输业务单表单（初始隐藏） -->
         <div id="transport-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8 hidden slide-in">
             <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
                 运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
@@ -265,16 +262,17 @@
     <!-- 页脚 -->
     <footer class="bg-white border-t border-gray-200 py-6 px-6 md:px-12">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            <p>© 2025 Pooling服务需求单</p>
+            <p>© 2025 车辆服务管理系统 - 版权所有 | 内置Excel模板 + 数据导出功能</p>
         </div>
     </footer>
 
     <script>
-        // 设置当前日期
+        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
+            // 显示当前日期
             const now = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', options);
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', dateOptions);
             
             // 获取DOM元素
             const serviceTab = document.getElementById('tab-service');
@@ -285,17 +283,23 @@
             const backButton = document.getElementById('back-to-service');
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notification-text');
+            const errorNotification = document.getElementById('error-notification');
+            const errorText = document.getElementById('error-text');
             
-            // 显示通知
+            // 显示提示信息
             function showNotification(message) {
                 notificationText.textContent = message;
                 notification.classList.remove('hidden');
                 notification.classList.add('slide-in');
-                
-                // 3秒后自动隐藏通知
-                setTimeout(() => {
-                    notification.classList.add('hidden');
-                }, 3000);
+                setTimeout(() => notification.classList.add('hidden'), 3000);
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                errorText.textContent = message;
+                errorNotification.classList.remove('hidden');
+                errorNotification.classList.add('slide-in');
+                setTimeout(() => errorNotification.classList.add('hidden'), 3000);
             }
             
             // 切换到运输业务单
@@ -316,56 +320,58 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
-            // 外部加油复选框事件
+            // 外部加油勾选自动跳转
             refuelCheckbox.addEventListener('change', function() {
                 if (this.checked) {
                     switchToTransport();
-                    showNotification('已自动跳转至运输业务单，因为您选择了外部加油服务');
+                    showNotification('已自动跳转至运输业务单（因选择外部加油服务）');
                 }
             });
             
-            // 标签切换事件
+            // 标签页切换事件
             serviceTab.addEventListener('click', switchToService);
             transportTab.addEventListener('click', switchToTransport);
             
             // 返回按钮事件
             backButton.addEventListener('click', switchToService);
 
-            // 表单提交后处理
-            const serviceFormElement = document.getElementById('service-form-data');
-            const transportFormElement = document.getElementById('transport-form-data');
-
-            serviceFormElement.addEventListener('submit', async function(e) {
+            // 服务需求单提交处理
+            document.getElementById('service-form-data').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
                 try {
-                    const response = await fetch('/submit_service_form', {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const response = await fetch('/submit_service_form', { method: 'POST', body: formData });
                     const result = await response.json();
                     showNotification(result.message);
                     this.reset(); // 提交后重置表单
                 } catch (error) {
-                    showNotification('提交失败，请重试');
+                    showError('服务需求单提交失败，请重试！');
                     console.error('提交错误:', error);
                 }
             });
 
-            transportFormElement.addEventListener('submit', async function(e) {
+            // 运输业务单提交处理
+            document.getElementById('transport-form-data').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
                 try {
-                    const response = await fetch('/submit_transport_form', {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const response = await fetch('/submit_transport_form', { method: 'POST', body: formData });
                     const result = await response.json();
                     showNotification(result.message);
                     this.reset(); // 提交后重置表单
                 } catch (error) {
-                    showNotification('提交失败，请重试');
+                    showError('运输业务单提交失败，请重试！');
                     console.error('提交错误:', error);
+                }
+            });
+
+            // 下载Excel按钮事件
+            document.querySelector('a[href="/download_excel"]').addEventListener('click', async function(e) {
+                try {
+                    showNotification('正在准备下载文件...');
+                } catch (error) {
+                    e.preventDefault();
+                    showError('下载失败，请检查服务是否正常！');
                 }
             });
         });
@@ -373,7 +379,7 @@
         // 重置表单函数
         function resetForm() {
             document.getElementById('service-form-data').reset();
-            showNotification('已保存草稿（实际功能需后端支持）');
+            showNotification('已保存草稿（仅清空表单，实际草稿功能需后端扩展）');
         }
     </script>
 </body>
