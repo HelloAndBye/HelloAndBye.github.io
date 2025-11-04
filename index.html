@@ -1,386 +1,387 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pooling服务需求单</title>
-    <!-- 引入Tailwind CSS（样式库） -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入Font Awesome（图标库） -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    
-    <!-- 自定义Tailwind样式 -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#165DFF',    // 主色调（蓝色）
-                        secondary: '#36CFC9',  // 辅助色（青色）
-                        neutral: '#F5F7FA',    // 中性色（浅灰）
-                        dark: '#1D2129',       // 深色（文字）
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto { content-visibility: auto; }
-            .form-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
-            .tab-active { @apply border-primary text-primary font-medium; }
-            .slide-in { animation: slideIn 0.5s ease forwards; }
-            @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel在线预览与下载</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标 -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入SheetJS库（处理Excel文件） -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#64748b',
+            accent: '#10b981',
+            neutral: '#f1f5f9',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .table-shadow {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .upload-hover {
+        @apply transition-all duration-300 hover:border-primary hover:bg-blue-50;
+      }
+      .btn-effect {
+        @apply transform transition-all duration-300 hover:scale-105 active:scale-95;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans text-dark">
-    <!-- 页面头部（含下载按钮） -->
-    <header class="bg-white shadow-sm py-4 px-6 md:px-12">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-primary">
-                <i class="fa fa-car mr-2"></i>车辆服务管理系统
-            </h1>
-            <div class="flex items-center space-x-4">
-                <!-- 下载Excel按钮（带提示） -->
-                <a href="/download_excel" class="flex items-center px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition shadow-sm" title="无数据时下载空白模板，有数据时下载包含所有记录的文件">
-                    <i class="fa fa-download mr-2"></i>下载Excel（模板/数据）
-                </a>
-                <!-- 下载说明 -->
-                <div class="mt-2 text-xs text-gray-500 text-center md:text-left">
-                    <span>📌 无数据→空白模板 | 有数据→完整数据</span>
-                </div>
-                <!-- 当前日期 -->
-                <div class="text-sm text-gray-500">
-                    <span id="current-date"></span>
-                </div>
+<body class="font-inter bg-gray-50 min-h-screen">
+  <!-- 顶部导航 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-file-excel-o text-primary text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800">Excel在线共享平台</h1>
+      </div>
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors">首页</a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors">帮助</a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors">关于</a>
+      </div>
+      <button class="md:hidden text-gray-600">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主要内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 上传区域 -->
+    <section class="max-w-3xl mx-auto mb-12">
+      <div class="bg-white rounded-xl p-6 md:p-8 table-shadow">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fa fa-upload text-primary mr-3"></i>上传Excel文件
+        </h2>
+        
+        <!-- 上传按钮 -->
+        <label for="file-upload" class="block w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center upload-hover cursor-pointer">
+          <input id="file-upload" type="file" accept=".xlsx,.xls" class="hidden" />
+          <div class="space-y-2">
+            <i class="fa fa-file-excel-o text-4xl text-primary"></i>
+            <p class="text-gray-600">点击或拖拽Excel文件到此处上传</p>
+            <p class="text-sm text-gray-400">支持 .xlsx 和 .xls 格式文件</p>
+          </div>
+        </label>
+        
+        <!-- 文件信息 -->
+        <div id="file-info" class="mt-6 hidden">
+          <div class="flex items-center justify-between p-4 bg-neutral rounded-lg">
+            <div class="flex items-center">
+              <i class="fa fa-file-excel-o text-primary mr-3 text-xl"></i>
+              <div>
+                <p id="file-name" class="font-medium text-gray-800 truncate max-w-xs"></p>
+                <p id="file-size" class="text-sm text-gray-500"></p>
+              </div>
             </div>
+            <button id="remove-file" class="text-red-500 hover:text-red-700 transition-colors">
+              <i class="fa fa-times-circle text-xl"></i>
+            </button>
+          </div>
         </div>
-    </header>
+      </div>
+    </section>
 
-    <!-- 主内容区 -->
-    <main class="container mx-auto py-8 px-4 md:px-12">
-        <!-- 标签页导航 -->
-        <div class="mb-8 border-b border-gray-200">
-            <ul class="flex flex-wrap -mb-px" id="form-tabs">
-                <li class="mr-2">
-                    <button id="tab-service" class="tab-active inline-block py-4 px-5 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 transition">
-                        <i class="fa fa-wrench mr-2"></i>服务需求单
-                    </button>
-                </li>
-                <li class="mr-2">
-                    <button id="tab-transport" class="inline-block py-4 px-5 border-b-2 border-transparent rounded-t-lg text-gray-500 hover:text-gray-600 hover:border-gray-300 transition">
-                        <i class="fa fa-truck mr-2"></i>运输业务单
-                    </button>
-                </li>
-            </ul>
+    <!-- 表格预览区域 -->
+    <section id="table-preview" class="max-w-6xl mx-auto hidden">
+      <div class="bg-white rounded-xl p-6 md:p-8 table-shadow">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+          <h2 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center mb-4 md:mb-0">
+            <i class="fa fa-table text-primary mr-3"></i>表格预览
+          </h2>
+          
+          <!-- 下载按钮组 -->
+          <div class="flex space-x-3">
+            <button id="download-original" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center btn-effect">
+              <i class="fa fa-download mr-2"></i>下载原文件
+            </button>
+            <button id="download-csv" class="bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg flex items-center btn-effect">
+              <i class="fa fa-file-text-o mr-2"></i>导出CSV
+            </button>
+          </div>
         </div>
-
-        <!-- 提示信息区域 -->
-        <div id="notification" class="hidden mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
-            <i class="fa fa-info-circle mr-2"></i>
-            <span id="notification-text"></span>
+        
+        <!-- 表格容器（带滚动） -->
+        <div class="overflow-x-auto">
+          <table id="excel-table" class="w-full border-collapse">
+            <thead>
+              <tr id="table-header" class="bg-primary/10"></tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
         </div>
-        <!-- 错误提示区域 -->
-        <div id="error-notification" class="hidden mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
-            <i class="fa fa-exclamation-circle mr-2"></i>
-            <span id="error-text"></span>
+        
+        <!-- 分页控制（如果表格数据较多） -->
+        <div id="pagination" class="mt-6 flex justify-center hidden">
+          <nav class="flex items-center space-x-1">
+            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">
+              <i class="fa fa-chevron-left text-sm"></i>
+            </button>
+            <button class="px-3 py-1 rounded border border-primary bg-primary text-white">1</button>
+            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">3</button>
+            <button class="px-3 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">
+              <i class="fa fa-chevron-right text-sm"></i>
+            </button>
+          </nav>
         </div>
+      </div>
+    </section>
 
-        <!-- 服务需求单表单 -->
-        <div id="service-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8">
-            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-                Pooling服务需求单 <small class="text-gray-500 text-base font-normal">Pooling Service Booking</small>
-            </h2>
-            <form id="service-form-data" method="post" action="/submit_service_form">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">车号 (Finas)</label>
-                        <input type="text" name="finas" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">车辆位置 (Vehicle Location)</label>
-                        <input type="text" name="vehicle_location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">钥匙位置 (Key Position)</label>
-                        <input type="text" name="key_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">预计交车时间 (Vehicle Hand Time)</label>
-                        <input type="datetime-local" name="hand_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold mb-4">服务内容 (Service Contents)</h3>
-                    <div class="space-y-3 pl-2">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="service-refuel" name="service_refuel" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                            <label for="service-refuel" class="ml-3 text-gray-700 cursor-pointer">
-                                外部加油 <span class="text-gray-500 text-sm">(需求加油量: <input type="number" min="0" step="0.1" name="refueling_amount" class="w-20 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> L)</span>
-                            </label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="service-charge" name="service_charge" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                            <label for="service-charge" class="ml-3 text-gray-700 cursor-pointer">
-                                充电 <span class="text-gray-500 text-sm">(充电到: <input type="number" min="0" max="100" name="charge_percentage" class="w-16 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> %)</span>
-                            </label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="service-start" name="service_start" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                            <label for="service-start" class="ml-3 text-gray-700 cursor-pointer">搭电</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="service-move" name="service_move" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                            <label for="service-move" class="ml-3 text-gray-700 cursor-pointer">TCC内挪车</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="service-wash" name="service_wash" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                            <label for="service-wash" class="ml-3 text-gray-700 cursor-pointer">洗车</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="service-repair" name="service_repair" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                            <label for="service-repair" class="ml-3 text-gray-700 cursor-pointer">车辆维修</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end">
-                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetForm()">
-                        <i class="fa fa-save mr-1"></i> 保存草稿
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
-                        <i class="fa fa-check mr-1"></i> 提交需求
-                    </button>
-                </div>
-            </form>
+    <!-- 空状态提示 -->
+    <section id="empty-state" class="max-w-3xl mx-auto text-center py-16">
+      <div class="bg-white rounded-xl p-8 table-shadow">
+        <i class="fa fa-file-excel-o text-gray-300 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-700 mb-2">暂无Excel文件</h3>
+        <p class="text-gray-500 mb-6">上传一个Excel文件，即可在这里预览并分享给他人下载</p>
+        <button id="empty-upload-btn" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg flex items-center mx-auto btn-effect">
+          <i class="fa fa-upload mr-2"></i>上传文件
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-gray-800 text-white py-8 mt-16">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <i class="fa fa-file-excel-o text-primary text-2xl mr-2"></i>
+          <span class="text-xl font-bold">Excel在线共享平台</span>
         </div>
-
-        <!-- 运输业务单表单（初始隐藏） -->
-        <div id="transport-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8 hidden slide-in">
-            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-                运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
-            </h2>
-            <form id="transport-form-data" method="post" action="/submit_transport_form">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">申请人 (Requestor)</label>
-                        <input type="text" name="requestor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">部门 (Department)</label>
-                        <input type="text" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">车号 (FiNAS)</label>
-                        <input type="text" name="finas_transport" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车日期 (Date)</label>
-                        <input type="date" name="departure_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车时间 (Time)</label>
-                        <input type="time" name="departure_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">出发城市</label>
-                        <input type="text" name="departure_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">到达城市</label>
-                        <input type="text" name="arrival_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车地址 (Departure)</label>
-                        <textarea name="departure_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">目的地 (Destination)</label>
-                        <textarea name="destination_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="2"></textarea>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车人 (Contact Person)</label>
-                        <input type="text" name="contact_person" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">联系电话 (Mobile)</label>
-                        <input type="tel" name="contact_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">收车人 (Receiver)</label>
-                        <input type="text" name="receiver" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">收车人电话 (Mobile)</label>
-                        <input type="tel" name="receiver_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">特殊需求</label>
-                    <textarea name="special_requirements" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" rows="3"></textarea>
-                </div>
-                
-                <div class="flex flex-wrap gap-4 mb-8">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="confidential" name="confidential" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                        <label for="confidential" class="ml-2 text-gray-700 cursor-pointer">保密车 (Confidential)</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="car-cover" name="car_cover" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
-                        <label for="car-cover" class="ml-2 text-gray-700 cursor-pointer">车衣 (Cover)</label>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end">
-                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" id="back-to-service">
-                        <i class="fa fa-arrow-left mr-1"></i> 返回
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
-                        <i class="fa fa-check mr-1"></i> 提交运输单
-                    </button>
-                </div>
-            </form>
+        <div class="flex space-x-6 mb-4 md:mb-0">
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-github text-xl"></i></a>
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-twitter text-xl"></i></a>
+          <a href="#" class="hover:text-primary transition-colors"><i class="fa fa-linkedin text-xl"></i></a>
         </div>
-    </main>
+        <p class="text-gray-400 text-sm">© 2025 Excel在线共享平台. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
 
-    <!-- 页脚 -->
-    <footer class="bg-white border-t border-gray-200 py-6 px-6 md:px-12">
-        <div class="container mx-auto text-center text-gray-500 text-sm">
-            <p>© 2025 车辆服务管理系统 - 版权所有 | 内置Excel模板 + 数据导出功能</p>
-        </div>
-    </footer>
-
-    <script>
-        // 页面加载完成后执行
-        document.addEventListener('DOMContentLoaded', function() {
-            // 显示当前日期
-            const now = new Date();
-            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', dateOptions);
-            
-            // 获取DOM元素
-            const serviceTab = document.getElementById('tab-service');
-            const transportTab = document.getElementById('tab-transport');
-            const serviceForm = document.getElementById('service-form');
-            const transportForm = document.getElementById('transport-form');
-            const refuelCheckbox = document.getElementById('service-refuel');
-            const backButton = document.getElementById('back-to-service');
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notification-text');
-            const errorNotification = document.getElementById('error-notification');
-            const errorText = document.getElementById('error-text');
-            
-            // 显示提示信息
-            function showNotification(message) {
-                notificationText.textContent = message;
-                notification.classList.remove('hidden');
-                notification.classList.add('slide-in');
-                setTimeout(() => notification.classList.add('hidden'), 3000);
-            }
-            
-            // 显示错误信息
-            function showError(message) {
-                errorText.textContent = message;
-                errorNotification.classList.remove('hidden');
-                errorNotification.classList.add('slide-in');
-                setTimeout(() => errorNotification.classList.add('hidden'), 3000);
-            }
-            
-            // 切换到运输业务单
-            function switchToTransport() {
-                serviceTab.classList.remove('tab-active');
-                transportTab.classList.add('tab-active');
-                serviceForm.classList.add('hidden');
-                transportForm.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            
-            // 切换到服务需求单
-            function switchToService() {
-                transportTab.classList.remove('tab-active');
-                serviceTab.classList.add('tab-active');
-                transportForm.classList.add('hidden');
-                serviceForm.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            
-            // 外部加油勾选自动跳转
-            refuelCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    switchToTransport();
-                    showNotification('已自动跳转至运输业务单（因选择外部加油服务）');
-                }
-            });
-            
-            // 标签页切换事件
-            serviceTab.addEventListener('click', switchToService);
-            transportTab.addEventListener('click', switchToTransport);
-            
-            // 返回按钮事件
-            backButton.addEventListener('click', switchToService);
-
-            // 服务需求单提交处理
-            document.getElementById('service-form-data').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                try {
-                    const response = await fetch('/submit_service_form', { method: 'POST', body: formData });
-                    const result = await response.json();
-                    showNotification(result.message);
-                    this.reset(); // 提交后重置表单
-                } catch (error) {
-                    showError('服务需求单提交失败，请重试！');
-                    console.error('提交错误:', error);
-                }
-            });
-
-            // 运输业务单提交处理
-            document.getElementById('transport-form-data').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                try {
-                    const response = await fetch('/submit_transport_form', { method: 'POST', body: formData });
-                    const result = await response.json();
-                    showNotification(result.message);
-                    this.reset(); // 提交后重置表单
-                } catch (error) {
-                    showError('运输业务单提交失败，请重试！');
-                    console.error('提交错误:', error);
-                }
-            });
-
-            // 下载Excel按钮事件
-            document.querySelector('a[href="/download_excel"]').addEventListener('click', async function(e) {
-                try {
-                    showNotification('正在准备下载文件...');
-                } catch (error) {
-                    e.preventDefault();
-                    showError('下载失败，请检查服务是否正常！');
-                }
-            });
+  <!-- JavaScript逻辑 -->
+  <script>
+    // 全局变量
+    let excelFile = null;
+    let excelData = null;
+    
+    // DOM元素
+    const fileUpload = document.getElementById('file-upload');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFile = document.getElementById('remove-file');
+    const tablePreview = document.getElementById('table-preview');
+    const emptyState = document.getElementById('empty-state');
+    const excelTable = document.getElementById('excel-table');
+    const tableHeader = document.getElementById('table-header');
+    const tableBody = document.getElementById('table-body');
+    const downloadOriginal = document.getElementById('download-original');
+    const downloadCsv = document.getElementById('download-csv');
+    const emptyUploadBtn = document.getElementById('empty-upload-btn');
+    
+    // 事件监听 - 上传文件
+    fileUpload.addEventListener('change', handleFileUpload);
+    
+    // 事件监听 - 移除文件
+    removeFile.addEventListener('click', clearFile);
+    
+    // 事件监听 - 空状态上传按钮
+    emptyUploadBtn.addEventListener('click', () => fileUpload.click());
+    
+    // 事件监听 - 下载原文件
+    downloadOriginal.addEventListener('click', downloadOriginalFile);
+    
+    // 事件监听 - 导出CSV
+    downloadCsv.addEventListener('click', exportToCsv);
+    
+    // 处理文件上传
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // 验证文件类型
+      const fileTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel'
+      ];
+      
+      if (!fileTypes.includes(file.type) && 
+          !file.name.endsWith('.xlsx') && 
+          !file.name.endsWith('.xls')) {
+        alert('请上传有效的Excel文件（.xlsx 或 .xls 格式）');
+        return;
+      }
+      
+      excelFile = file;
+      
+      // 显示文件信息
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      fileInfo.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+      tablePreview.classList.remove('hidden');
+      
+      // 解析Excel文件
+      parseExcelFile(file);
+    }
+    
+    // 解析Excel文件
+    function parseExcelFile(file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // 获取第一个工作表
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // 转换为JSON格式
+        excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        // 渲染表格
+        renderTable(excelData);
+      };
+      
+      reader.onerror = function() {
+        alert('文件读取失败，请重试');
+      };
+      
+      reader.readAsArrayBuffer(file);
+    }
+    
+    // 渲染表格
+    function renderTable(data) {
+      if (!data || data.length === 0) return;
+      
+      // 清空表格
+      tableHeader.innerHTML = '';
+      tableBody.innerHTML = '';
+      
+      // 创建表头
+      const headers = data[0];
+      headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header || '';
+        th.className = 'px-4 py-3 text-left text-gray-700 font-semibold border-b border-gray-200';
+        tableHeader.appendChild(th);
+      });
+      
+      // 创建表格内容
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        const tr = document.createElement('tr');
+        tr.className = i % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+        tr.classList.add('hover:bg-gray-100', 'transition-colors');
+        
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell || '';
+          td.className = 'px-4 py-3 border-b border-gray-200 text-gray-700';
+          tr.appendChild(td);
         });
-
-        // 重置表单函数
-        function resetForm() {
-            document.getElementById('service-form-data').reset();
-            showNotification('已保存草稿（仅清空表单，实际草稿功能需后端扩展）');
-        }
-    </script>
+        
+        tableBody.appendChild(tr);
+      }
+      
+      // 如果数据较多，显示分页
+      if (data.length > 10) {
+        document.getElementById('pagination').classList.remove('hidden');
+      }
+    }
+    
+    // 清除文件
+    function clearFile() {
+      excelFile = null;
+      excelData = null;
+      fileUpload.value = '';
+      fileInfo.classList.add('hidden');
+      tablePreview.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+    }
+    
+    // 下载原文件
+    function downloadOriginalFile() {
+      if (!excelFile) return;
+      
+      const url = URL.createObjectURL(excelFile);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = excelFile.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    // 导出为CSV
+    function exportToCsv() {
+      if (!excelData) return;
+      
+      // 转换为CSV字符串
+      let csvContent = '';
+      excelData.forEach(row => {
+        const rowString = row.map(cell => {
+          // 处理包含逗号或引号的单元格
+          if (cell && (cell.toString().includes(',') || cell.toString().includes('"'))) {
+            return `"${cell.toString().replace(/"/g, '""')}"`;
+          }
+          return cell || '';
+        }).join(',');
+        csvContent += rowString + '\n';
+      });
+      
+      // 创建下载链接
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      
+      // 文件名（替换原扩展名）
+      const csvFileName = excelFile ? 
+        excelFile.name.replace(/\.(xlsx|xls)$/, '.csv') : 
+        'export.csv';
+      
+      a.href = url;
+      a.download = csvFileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+  </script>
 </body>
 </html>
