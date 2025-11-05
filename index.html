@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车辆服务管理系统（纯静态版·示例表模板）</title>
-    <!-- 引入CDN资源 -->
+    <!-- 引入CDN资源（确保版本兼容） -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -371,12 +371,14 @@
                 localStorage.setItem(STORAGE_KEY[type], JSON.stringify(records));
             }
             
-            // -------------- 核心优化：生成与示例表一致的Excel模板 --------------
+            // -------------- 核心功能：生成与示例表一致的Excel模板（修复API兼容） --------------
             function createSampleLikeTemplate() {
                 const wb = XLSX.utils.book_new();
 
                 // -------------------------- 1. Pooling服务需求单 --------------------------
-                const serviceWs = XLSX.utils.book_new_sheet(wb, 'Pooling服务需求单Pooling Service ');
+                // 修复：用正确的方式创建工作表（兼容SheetJS 0.18.5）
+                const serviceWs = XLSX.utils.aoa_to_sheet([]);
+                XLSX.utils.book_append_sheet(wb, serviceWs, 'Pooling服务需求单Pooling Service ');
                 
                 // 服务需求单数据（完全复刻示例表结构，包含合并单元格）
                 const serviceData = [
@@ -408,7 +410,8 @@
                 ];
 
                 // -------------------------- 2. 运输业务单 --------------------------
-                const transportWs = XLSX.utils.book_new_sheet(wb, '运输业务单Transportation');
+                const transportWs = XLSX.utils.aoa_to_sheet([]);
+                XLSX.utils.book_append_sheet(wb, transportWs, '运输业务单Transportation');
                 
                 // 运输业务单表头（完全复刻示例表20列结构）
                 const transportHeader = [
@@ -422,7 +425,8 @@
                 XLSX.utils.sheet_add_aoa(transportWs, [transportHeader]);
 
                 // -------------------------- 3. Transfor Pool Check List --------------------------
-                const checkListWs = XLSX.utils.book_new_sheet(wb, 'Transfor Pool Check List ');
+                const checkListWs = XLSX.utils.aoa_to_sheet([]);
+                XLSX.utils.book_append_sheet(wb, checkListWs, 'Transfor Pool Check List ');
                 
                 // 随车检查单数据（复刻示例表结构）
                 const checkListData = [
@@ -489,7 +493,7 @@
                                 record.service_maintain ? '是' : '', // B16：车辆内部保养
                                 // 详细说明列
                                 record.refueling_amount || '', // C8：需求加油量
-                                record.charge_percentage || '', // C9：充电到%
+                                record.charge_percentage || '' // C9：充电到%
                             ]
                         ], { origin: row });
                     });
