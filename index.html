@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车辆服务管理系统（纯静态版·仅服务需求单）</title>
-    <!-- 引入CDN资源 -->
+    <!-- 引入CDN资源（SheetJS使用稳定版，修复兼容性问题） -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -89,43 +89,43 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">车号 (Finas)</label>
-                        <input type="text" name="finas" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                        <input type="text" name="finas" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">车辆位置 (Vehicle Location)</label>
-                        <input type="text" name="vehicle_location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                        <input type="text" name="vehicle_location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">钥匙位置 (Key Position)</label>
-                        <input type="text" name="key_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                        <input type="text" name="key_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">预计交车时间 (Vehicle Hand Time)</label>
-                        <input type="datetime-local" name="hand_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                        <input type="datetime-local" name="hand_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">取车联系人 (Vehicle Pick Up Contact Person)</label>
-                        <input type="text" name="pickup_contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                        <input type="text" name="pickup_contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">车辆归还联系人 (Vehicle Return Contact Person)</label>
-                        <input type="text" name="return_contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
+                        <input type="text" name="return_contact" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" required>
                     </div>
                 </div>
                 
                 <div class="mb-8">
-                    <h3 class="text-lg font-semibold mb-4">服务内容 (Service Contents)</h3>
+                    <h3 class="text-lg font-semibold mb-4">服务内容 (Service Contents) <span class="text-red-500 text-sm">(至少选择一项)</span></h3>
                     <div class="space-y-3 pl-2">
                         <div class="flex items-center">
                             <input type="checkbox" id="service-refuel" name="service_refuel" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
                             <label for="service-refuel" class="ml-3 text-gray-700 cursor-pointer">
-                                外部加油 <span class="text-gray-500 text-sm">(需求加油量: <input type="number" min="0" step="0.1" name="refueling_amount" class="w-20 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> L)</span>
+                                外部加油 <span class="text-gray-500 text-sm">(需求加油量: <input type="number" min="0" step="0.1" name="refueling_amount" class="w-20 ml-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="0.0"> L)</span>
                             </label>
                         </div>
                         <div class="flex items-center">
                             <input type="checkbox" id="service-charge" name="service_charge" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded transition cursor-pointer">
                             <label for="service-charge" class="ml-3 text-gray-700 cursor-pointer">
-                                充电 <span class="text-gray-500 text-sm">(充电到: <input type="number" min="0" max="100" name="charge_percentage" class="w-16 ml-1 px-2 py-1 border border-gray-300 rounded text-sm"> %)</span>
+                                充电 <span class="text-gray-500 text-sm">(充电到: <input type="number" min="0" max="100" name="charge_percentage" class="w-16 ml-1 px-2 py-1 border border-gray-300 rounded text-sm" placeholder="0"> %)</span>
                             </label>
                         </div>
                         <div class="flex items-center">
@@ -190,13 +190,14 @@
             const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
             document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', dateOptions);
             
-            // DOM元素（删除运输业务单相关）
+            // DOM元素
             const refuelCheckbox = document.getElementById('service-refuel');
             const downloadBtn = document.getElementById('download-btn');
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notification-text');
             const errorNotification = document.getElementById('error-notification');
             const errorText = document.getElementById('error-text');
+            const serviceForm = document.getElementById('service-form-data');
             
             // 提示函数
             function showNotification(message) {
@@ -225,44 +226,47 @@
                 localStorage.setItem(STORAGE_KEY[type], JSON.stringify(records));
             }
             
-            // -------------- 核心：生成与示例表一致的Excel模板（仅保留2个工作表） --------------
+            // -------------- 核心：生成与示例表一致的Excel模板（修复SheetJS兼容性） --------------
             function createSampleLikeTemplate() {
                 const wb = XLSX.utils.book_new();
 
                 // -------------------------- 1. Pooling服务需求单 --------------------------
-                const serviceWs = XLSX.utils.book_new_sheet(wb, 'Pooling服务需求单Pooling Service ');
+                // 修复：用aoa_to_sheet创建空表 + book_append_sheet追加到工作簿（兼容所有版本）
+                const serviceWs = XLSX.utils.aoa_to_sheet([]);
+                XLSX.utils.book_append_sheet(wb, serviceWs, 'Pooling服务需求单Pooling Service ');
                 
-                // 服务需求单数据（完全复刻示例表结构）
+                // 服务需求单数据（完全复刻示例表结构：合并单元格、中英文表头、服务项目分栏）
                 const serviceData = [
                     ['本表单发送到pooling_rd_china@mercedes-benz.com', '', '', ''], // A1:D1合并
-                    ['车号\nFinas', '', '', '车辆位置\nVehicle Location'], // A2, D2
-                    ['钥匙位置\nKey Position', '', '', '预计交车时间\nVehicle Hand Time'], // A3, D3
-                    ['取车联系人\nVehicle Pick Up Contact Person', '', '', ''], // A4
-                    ['车辆归还联系人\nVehicle Return Contact Person', '', '', ''], // A5
-                    ['服务内容\nService Contents', '', '', ''], // A6
-                    ['', '项目\nService Item', '详细说明\nDetail Discription', ''], // B7, C7
-                    ['', '外部加油', '需求加油量', ''], // B8, C8
-                    ['', '充电', '充电到                        %', ''], // B9, C9
-                    ['', '搭电', '', ''], // B10
-                    ['', 'TCC内挪车', '', ''], // B11
-                    ['', '车辆驶入TCC', '', ''], // B12
-                    ['', '车辆移出TCC', '', ''], // B13
-                    ['', '洗车', '', ''], // B14
-                    ['', '车辆维修', '', ''], // B15
-                    ['', '车辆内部保养', '', ''], // B16
-                    ['', '车辆内部保养', '', '']  // B17
+                    ['车号\nFinas', '', '', '车辆位置\nVehicle Location'], // A2=车号，D2=车辆位置
+                    ['钥匙位置\nKey Position', '', '', '预计交车时间\nVehicle Hand Time'], // A3=钥匙位置，D3=交车时间
+                    ['取车联系人\nVehicle Pick Up Contact Person', '', '', ''], // A4=取车联系人
+                    ['车辆归还联系人\nVehicle Return Contact Person', '', '', ''], // A5=归还联系人
+                    ['服务内容\nService Contents', '', '', ''], // A6=服务内容标题
+                    ['', '项目\nService Item', '详细说明\nDetail Discription', ''], // B7=项目，C7=详细说明
+                    ['', '外部加油', '需求加油量', ''], // B8=外部加油，C8=需求加油量
+                    ['', '充电', '充电到                        %', ''], // B9=充电，C9=充电到%
+                    ['', '搭电', '', ''], // B10=搭电
+                    ['', 'TCC内挪车', '', ''], // B11=TCC内挪车
+                    ['', '车辆驶入TCC', '', ''], // B12=车辆驶入TCC
+                    ['', '车辆移出TCC', '', ''], // B13=车辆移出TCC
+                    ['', '洗车', '', ''], // B14=洗车
+                    ['', '车辆维修', '', ''], // B15=车辆维修
+                    ['', '车辆内部保养', '', ''], // B16=车辆内部保养
+                    ['', '车辆内部保养', '', '']  // B17=车辆内部保养（与示例表一致）
                 ];
                 
-                // 填充服务需求单数据
+                // 填充数据到工作表
                 XLSX.utils.sheet_add_aoa(serviceWs, serviceData);
                 
                 // 设置合并单元格（A1:D1）
                 serviceWs['!merges'] = [
-                    XLSX.utils.decode_range('A1:D1')
+                    XLSX.utils.decode_range('A1:D1') // 解码合并范围（兼容写法）
                 ];
 
-                // -------------------------- 2. Transfor Pool Check List --------------------------
-                const checkListWs = XLSX.utils.book_new_sheet(wb, 'Transfor Pool Check List ');
+                // -------------------------- 2. Transfor Pool Check List（随车检查单） --------------------------
+                const checkListWs = XLSX.utils.aoa_to_sheet([]);
+                XLSX.utils.book_append_sheet(wb, checkListWs, 'Transfor Pool Check List ');
                 
                 // 随车检查单数据（复刻示例表结构）
                 const checkListData = [
@@ -286,7 +290,7 @@
                 // 填充随车检查单数据
                 XLSX.utils.sheet_add_aoa(checkListWs, checkListData);
                 
-                // 设置合并单元格
+                // 设置合并单元格（与示例表一致）
                 checkListWs['!merges'] = [
                     XLSX.utils.decode_range('A1:A1')
                 ];
@@ -294,7 +298,7 @@
                 return wb;
             }
             
-            // 生成含数据的Excel（仅服务需求单数据）
+            // 生成含数据的Excel（数据精准填充到模板对应列）
             function createDataExcel() {
                 const wb = createSampleLikeTemplate();
                 const serviceRecords = getStoredRecords('SERVICE');
@@ -304,17 +308,20 @@
                     serviceRecords.forEach((record, index) => {
                         // 数据从第19行开始填充（避免覆盖模板表头）
                         const row = 19 + index;
+                        // 按模板列顺序填充数据
                         XLSX.utils.sheet_add_aoa(serviceWs, [
                             [
                                 record.finas || '', // A列：车号
                                 '', '',
                                 record.vehicle_location || '', // D列：车辆位置
-                                record.key_position || '', // A列（第3行）：钥匙位置
+                                // 单独填充第3行相关字段（钥匙位置、预计交车时间）
+                                record.key_position || '', // A3：钥匙位置
                                 '', '',
-                                record.hand_time || '', // D列（第3行）：预计交车时间
-                                record.pickup_contact || '', // A列（第4行）：取车联系人
-                                record.return_contact || '', // A列（第5行）：归还联系人
-                                // 服务项目标记
+                                record.hand_time || '', // D3：预计交车时间
+                                // 单独填充第4-5行联系人字段
+                                record.pickup_contact || '', // A4：取车联系人
+                                record.return_contact || '', // A5：归还联系人
+                                // 服务项目（B列标记"是"）
                                 record.service_refuel ? '是' : '', // B8：外部加油
                                 record.service_charge ? '是' : '', // B9：充电
                                 record.service_start ? '是' : '', // B10：搭电
@@ -324,7 +331,7 @@
                                 record.service_wash ? '是' : '', // B14：洗车
                                 record.service_repair ? '是' : '', // B15：车辆维修
                                 record.service_maintain ? '是' : '', // B16：车辆内部保养
-                                // 详细说明
+                                // 详细说明列（C列）
                                 record.refueling_amount || '', // C8：需求加油量
                                 record.charge_percentage || '' // C9：充电到%
                             ]
@@ -340,10 +347,12 @@
                 try {
                     const hasData = getStoredRecords('SERVICE').length > 0;
                     const wb = hasData ? createDataExcel() : createSampleLikeTemplate();
+                    // 文件名与示例表一致，含数据时添加时间戳
                     const fileName = hasData 
                         ? `车辆服务数据_${new Date().toLocaleString().replace(/[:/ ]/g, '')}.xlsx`
                         : 'Pooling Service Template 20250815.xlsx';
                     
+                    // 下载文件（SheetJS官方推荐方法，兼容所有浏览器）
                     XLSX.writeFile(wb, fileName);
                     showNotification(`✅ ${hasData ? '含数据Excel' : '示例版空白模板'}下载成功`);
                 } catch (error) {
@@ -352,15 +361,34 @@
                 }
             }
             
-            // 事件绑定（删除运输业务单相关）
+            // -------------- 事件绑定 --------------
+            // 外部加油勾选触发下载
             refuelCheckbox.addEventListener('change', function() {
                 if (this.checked) downloadExcel();
             });
+            
+            // 下载按钮触发下载
             downloadBtn.addEventListener('click', downloadExcel);
 
-            // 服务需求单提交
-            document.getElementById('service-form-data').addEventListener('submit', function(e) {
+            // 服务需求单提交（增加表单验证）
+            serviceForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // 表单验证：至少选择一项服务
+                const serviceCheckboxes = [
+                    'service_refuel', 'service_charge', 'service_start', 'service_move',
+                    'service_enter', 'service_exit', 'service_wash', 'service_repair', 'service_maintain'
+                ];
+                const isAnyServiceSelected = serviceCheckboxes.some(checkboxName => 
+                    document.querySelector(`input[name="${checkboxName}"]`).checked
+                );
+                
+                if (!isAnyServiceSelected) {
+                    showError('❌ 请至少选择一项服务内容！');
+                    return;
+                }
+                
+                // 收集表单数据
                 const formData = new FormData(this);
                 const record = {
                     finas: formData.get('finas') || '',
@@ -384,18 +412,19 @@
                 
                 try {
                     saveRecord('SERVICE', record);
-                    showNotification('✅ 服务需求单已保存到本地');
-                    this.reset();
+                    showNotification('✅ 服务需求单已保存到本地，可下载Excel查看');
+                    this.reset(); // 提交后重置表单
                 } catch (error) {
                     showError('❌ 提交失败，请重试！');
+                    console.error('表单提交错误:', error);
                 }
             });
         });
 
-        // 重置表单（简化，仅服务需求单）
+        // 重置表单（简化版）
         function resetForm() {
             document.getElementById('service-form-data').reset();
-            showNotification('已清空表单（本地存储记录未删除）');
+            showNotification('已清空表单（本地存储的历史记录未删除）');
         }
     </script>
 </body>
