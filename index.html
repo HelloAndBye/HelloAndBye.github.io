@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>车辆服务管理系统（纯静态版·示例表模板）</title>
-    <!-- 引入CDN资源（确保版本兼容） -->
+    <title>车辆服务管理系统（纯静态版·仅服务需求单）</title>
+    <!-- 引入CDN资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -43,7 +43,7 @@
     <header class="bg-white shadow-sm py-4 px-6 md:px-12">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-primary">
-                <i class="fa fa-car mr-2"></i>车辆服务管理系统（纯静态版·示例表模板）
+                <i class="fa fa-car mr-2"></i>车辆服务管理系统（纯静态版·仅服务需求单）
             </h1>
             <div class="flex items-center space-x-4">
                 <button id="download-btn" class="flex items-center px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition shadow-sm">
@@ -59,17 +59,12 @@
 
     <!-- 主内容区 -->
     <main class="container mx-auto py-8 px-4 md:px-12">
-        <!-- 标签页导航 -->
+        <!-- 标签页导航（仅保留服务需求单） -->
         <div class="mb-8 border-b border-gray-200">
             <ul class="flex flex-wrap -mb-px" id="form-tabs">
                 <li class="mr-2">
                     <button id="tab-service" class="tab-active inline-block py-4 px-5 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 transition">
                         <i class="fa fa-wrench mr-2"></i>服务需求单
-                    </button>
-                </li>
-                <li class="mr-2">
-                    <button id="tab-transport" class="inline-block py-4 px-5 border-b-2 border-transparent rounded-t-lg text-gray-500 hover:text-gray-600 hover:border-gray-300 transition">
-                        <i class="fa fa-truck mr-2"></i>运输业务单
                     </button>
                 </li>
             </ul>
@@ -85,7 +80,7 @@
             <span id="error-text"></span>
         </div>
 
-        <!-- 服务需求单表单 -->
+        <!-- 服务需求单表单（仅保留此表单） -->
         <div id="service-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8">
             <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
                 Pooling服务需求单 <small class="text-gray-500 text-base font-normal">Pooling Service Booking</small>
@@ -165,129 +160,11 @@
                 </div>
                 
                 <div class="flex justify-end">
-                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetForm('service')">
+                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetForm()">
                         <i class="fa fa-save mr-1"></i> 保存草稿
                     </button>
                     <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
                         <i class="fa fa-check mr-1"></i> 提交需求
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 运输业务单表单 -->
-        <div id="transport-form" class="bg-white rounded-xl p-6 md:p-8 form-shadow mb-8 hidden slide-in">
-            <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
-                运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
-            </h2>
-            <form id="transport-form-data">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">申请人 (Requestor)</label>
-                        <input type="text" name="requestor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">部门 (Department)</label>
-                        <input type="text" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">车号 (FiNAS)</label>
-                        <input type="text" name="finas_transport" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车日期 (Date)</label>
-                        <input type="date" name="departure_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车时间 (Time)</label>
-                        <input type="time" name="departure_time" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">出发城市</label>
-                        <input type="text" name="departure_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车地址 (Departure)</label>
-                        <input type="text" name="departure_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">行程</label>
-                        <input type="text" name="trip_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition" placeholder="单程/往返">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发车人 (Contact Person)</label>
-                        <input type="text" name="contact_person" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">联系电话 (Mobile)</label>
-                        <input type="tel" name="contact_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">特殊需求</label>
-                        <input type="text" name="special_requirements" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">IO</label>
-                        <input type="text" name="io_number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">保密车 (Confidential)</label>
-                        <select name="confidential" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                            <option value="否">否</option>
-                            <option value="是">是</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">车衣 (Cover)</label>
-                        <select name="car_cover" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                            <option value="否">否</option>
-                            <option value="是">是</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">到达城市</label>
-                        <input type="text" name="arrival_city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">目的地 (Destination)</label>
-                        <input type="text" name="destination_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">收车人 (Receiver)</label>
-                        <input type="text" name="receiver" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">收车人电话 (Mobile)</label>
-                        <input type="tel" name="receiver_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">运输周期</label>
-                        <input type="text" name="transport_cycle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">用户期望到达日期</label>
-                        <input type="date" name="expected_arrival_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition">
-                    </div>
-                </div>
-                
-                <div class="flex justify-end">
-                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" id="back-to-service">
-                        <i class="fa fa-arrow-left mr-1"></i> 返回
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
-                        <i class="fa fa-check mr-1"></i> 提交运输单
                     </button>
                 </div>
             </form>
@@ -297,15 +174,14 @@
     <!-- 页脚 -->
     <footer class="bg-white border-t border-gray-200 py-6 px-6 md:px-12">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            <p>© 2025 车辆服务管理系统（纯静态版）| 模板结构与示例表一致 | 数据存储在当前浏览器</p>
+            <p>© 2025 车辆服务管理系统（纯静态版）| 仅服务需求单 | 模板结构与示例表一致 | 数据存储在当前浏览器</p>
         </div>
     </footer>
 
     <script>
-        // 本地存储键名
+        // 本地存储键名（仅保留服务需求单）
         const STORAGE_KEY = {
-            SERVICE: 'vehicle_service_records',
-            TRANSPORT: 'vehicle_transport_records'
+            SERVICE: 'vehicle_service_records'
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -314,13 +190,8 @@
             const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
             document.getElementById('current-date').textContent = now.toLocaleDateString('zh-CN', dateOptions);
             
-            // DOM元素
-            const serviceTab = document.getElementById('tab-service');
-            const transportTab = document.getElementById('tab-transport');
-            const serviceForm = document.getElementById('service-form');
-            const transportForm = document.getElementById('transport-form');
+            // DOM元素（删除运输业务单相关）
             const refuelCheckbox = document.getElementById('service-refuel');
-            const backButton = document.getElementById('back-to-service');
             const downloadBtn = document.getElementById('download-btn');
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notification-text');
@@ -342,24 +213,7 @@
                 setTimeout(() => errorNotification.classList.add('hidden'), 3000);
             }
             
-            // 标签页切换
-            function switchToTransport() {
-                serviceTab.classList.remove('tab-active');
-                transportTab.classList.add('tab-active');
-                serviceForm.classList.add('hidden');
-                transportForm.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            
-            function switchToService() {
-                transportTab.classList.remove('tab-active');
-                serviceTab.classList.add('tab-active');
-                transportForm.classList.add('hidden');
-                serviceForm.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            
-            // 本地存储操作
+            // 本地存储操作（仅保留服务需求单）
             function getStoredRecords(type) {
                 const records = localStorage.getItem(STORAGE_KEY[type]);
                 return records ? JSON.parse(records) : [];
@@ -371,16 +225,14 @@
                 localStorage.setItem(STORAGE_KEY[type], JSON.stringify(records));
             }
             
-            // -------------- 核心功能：生成与示例表一致的Excel模板（修复API兼容） --------------
+            // -------------- 核心：生成与示例表一致的Excel模板（仅保留2个工作表） --------------
             function createSampleLikeTemplate() {
                 const wb = XLSX.utils.book_new();
 
                 // -------------------------- 1. Pooling服务需求单 --------------------------
-                // 修复：用正确的方式创建工作表（兼容SheetJS 0.18.5）
-                const serviceWs = XLSX.utils.aoa_to_sheet([]);
-                XLSX.utils.book_append_sheet(wb, serviceWs, 'Pooling服务需求单Pooling Service ');
+                const serviceWs = XLSX.utils.book_new_sheet(wb, 'Pooling服务需求单Pooling Service ');
                 
-                // 服务需求单数据（完全复刻示例表结构，包含合并单元格）
+                // 服务需求单数据（完全复刻示例表结构）
                 const serviceData = [
                     ['本表单发送到pooling_rd_china@mercedes-benz.com', '', '', ''], // A1:D1合并
                     ['车号\nFinas', '', '', '车辆位置\nVehicle Location'], // A2, D2
@@ -406,32 +258,16 @@
                 
                 // 设置合并单元格（A1:D1）
                 serviceWs['!merges'] = [
-                    XLSX.utils.decode_range('A1:D1') // 合并第1行A到D列
+                    XLSX.utils.decode_range('A1:D1')
                 ];
 
-                // -------------------------- 2. 运输业务单 --------------------------
-                const transportWs = XLSX.utils.aoa_to_sheet([]);
-                XLSX.utils.book_append_sheet(wb, transportWs, '运输业务单Transportation');
-                
-                // 运输业务单表头（完全复刻示例表20列结构）
-                const transportHeader = [
-                    'Requestor', 'Department', 'FiNAS', 'Date\n发车日期 ', 'Time\n发车时间',
-                    '出发城市', 'Departure\n发车地址', '行程', 'Contact Person\n发车人', 'Mobile\n手机',
-                    '特殊需求', 'IO', 'Confidential 保密车', 'Cover \n车衣', '到达城市',
-                    'Destination\n目的地', 'Receiver\n收车人', 'Mobile 手机号', '运输\n周期', '用户期望到达日期'
-                ];
-                
-                // 填充运输业务单表头（空白模板仅表头，数据行留空）
-                XLSX.utils.sheet_add_aoa(transportWs, [transportHeader]);
-
-                // -------------------------- 3. Transfor Pool Check List --------------------------
-                const checkListWs = XLSX.utils.aoa_to_sheet([]);
-                XLSX.utils.book_append_sheet(wb, checkListWs, 'Transfor Pool Check List ');
+                // -------------------------- 2. Transfor Pool Check List --------------------------
+                const checkListWs = XLSX.utils.book_new_sheet(wb, 'Transfor Pool Check List ');
                 
                 // 随车检查单数据（复刻示例表结构）
                 const checkListData = [
-                    ['随车  Log book', '', '', 'Date', '', '是:R', '', 'Transfor in Pool', ''], // 表头行
-                    ['Item', 'Description', '', '', '', '交车人', '', '接车人', ''], // 子表头
+                    ['随车  Log book', '', '', 'Date', '', '是:R', '', 'Transfor in Pool', ''],
+                    ['Item', 'Description', '', '', '', '交车人', '', '接车人', ''],
                     ['随车应急设备', 'First aid kit/急救包', '', '', '', '', '', '', ''],
                     ['', 'Warning triangle/警示三角牌（三脚架）', '', '', '', '', '', '', ''],
                     ['', 'Reflective vest/反光背心', '', '', '', '', '', '', ''],
@@ -450,19 +286,17 @@
                 // 填充随车检查单数据
                 XLSX.utils.sheet_add_aoa(checkListWs, checkListData);
                 
-                // 设置合并单元格（A1:A1）
+                // 设置合并单元格
                 checkListWs['!merges'] = [
-                    XLSX.utils.decode_range('A1:A1') // 保持示例表合并样式
+                    XLSX.utils.decode_range('A1:A1')
                 ];
 
                 return wb;
             }
             
-            // 生成含数据的Excel（数据填充到对应列，不破坏模板结构）
+            // 生成含数据的Excel（仅服务需求单数据）
             function createDataExcel() {
                 const wb = createSampleLikeTemplate();
-                
-                // -------------------------- 填充服务需求单数据 --------------------------
                 const serviceRecords = getStoredRecords('SERVICE');
                 const serviceWs = wb.Sheets['Pooling服务需求单Pooling Service '];
                 
@@ -470,18 +304,17 @@
                     serviceRecords.forEach((record, index) => {
                         // 数据从第19行开始填充（避免覆盖模板表头）
                         const row = 19 + index;
-                        // 对应模板列：A=车号，D=车辆位置，A3=钥匙位置，D3=预计交车时间，A4=取车联系人，A5=归还联系人
                         XLSX.utils.sheet_add_aoa(serviceWs, [
                             [
                                 record.finas || '', // A列：车号
                                 '', '',
                                 record.vehicle_location || '', // D列：车辆位置
-                                record.key_position || '', // A列（第3行）：钥匙位置（单独设置）
+                                record.key_position || '', // A列（第3行）：钥匙位置
                                 '', '',
-                                record.hand_time || '', // D列（第3行）：预计交车时间（单独设置）
-                                record.pickup_contact || '', // A列（第4行）：取车联系人（单独设置）
-                                record.return_contact || '', // A列（第5行）：归还联系人（单独设置）
-                                // 服务项目：B列（第8-17行）标记"是"
+                                record.hand_time || '', // D列（第3行）：预计交车时间
+                                record.pickup_contact || '', // A列（第4行）：取车联系人
+                                record.return_contact || '', // A列（第5行）：归还联系人
+                                // 服务项目标记
                                 record.service_refuel ? '是' : '', // B8：外部加油
                                 record.service_charge ? '是' : '', // B9：充电
                                 record.service_start ? '是' : '', // B10：搭电
@@ -491,44 +324,9 @@
                                 record.service_wash ? '是' : '', // B14：洗车
                                 record.service_repair ? '是' : '', // B15：车辆维修
                                 record.service_maintain ? '是' : '', // B16：车辆内部保养
-                                // 详细说明列
+                                // 详细说明
                                 record.refueling_amount || '', // C8：需求加油量
                                 record.charge_percentage || '' // C9：充电到%
-                            ]
-                        ], { origin: row });
-                    });
-                }
-                
-                // -------------------------- 填充运输业务单数据 --------------------------
-                const transportRecords = getStoredRecords('TRANSPORT');
-                const transportWs = wb.Sheets['运输业务单Transportation'];
-                
-                if (transportRecords.length > 0) {
-                    transportRecords.forEach((record, index) => {
-                        // 数据从第3行开始填充（第1行表头，第2行留空）
-                        const row = 3 + index;
-                        XLSX.utils.sheet_add_aoa(transportWs, [
-                            [
-                                record.requestor || '', // Requestor
-                                record.department || '', // Department
-                                record.finas_transport || '', // FiNAS
-                                record.departure_date || '', // Date
-                                record.departure_time || '', // Time
-                                record.departure_city || '', // 出发城市
-                                record.departure_address || '', // Departure
-                                record.trip_type || '', // 行程
-                                record.contact_person || '', // Contact Person
-                                record.contact_phone || '', // Mobile
-                                record.special_requirements || '', // 特殊需求
-                                record.io_number || '', // IO
-                                record.confidential || '否', // Confidential
-                                record.car_cover || '否', // Cover
-                                record.arrival_city || '', // 到达城市
-                                record.destination_address || '', // Destination
-                                record.receiver || '', // Receiver
-                                record.receiver_phone || '', // Mobile 手机号
-                                record.transport_cycle || '', // 运输周期
-                                record.expected_arrival_date || '' // 用户期望到达日期
                             ]
                         ], { origin: row });
                     });
@@ -540,11 +338,11 @@
             // 下载Excel文件
             function downloadExcel() {
                 try {
-                    const hasData = getStoredRecords('SERVICE').length > 0 || getStoredRecords('TRANSPORT').length > 0;
+                    const hasData = getStoredRecords('SERVICE').length > 0;
                     const wb = hasData ? createDataExcel() : createSampleLikeTemplate();
                     const fileName = hasData 
                         ? `车辆服务数据_${new Date().toLocaleString().replace(/[:/ ]/g, '')}.xlsx`
-                        : 'Pooling Service Template 20250815.xlsx'; // 与示例表同名
+                        : 'Pooling Service Template 20250815.xlsx';
                     
                     XLSX.writeFile(wb, fileName);
                     showNotification(`✅ ${hasData ? '含数据Excel' : '示例版空白模板'}下载成功`);
@@ -554,14 +352,11 @@
                 }
             }
             
-            // 事件绑定
+            // 事件绑定（删除运输业务单相关）
             refuelCheckbox.addEventListener('change', function() {
                 if (this.checked) downloadExcel();
             });
             downloadBtn.addEventListener('click', downloadExcel);
-            serviceTab.addEventListener('click', switchToService);
-            transportTab.addEventListener('click', switchToTransport);
-            backButton.addEventListener('click', switchToService);
 
             // 服务需求单提交
             document.getElementById('service-form-data').addEventListener('submit', function(e) {
@@ -595,47 +390,11 @@
                     showError('❌ 提交失败，请重试！');
                 }
             });
-
-            // 运输业务单提交
-            document.getElementById('transport-form-data').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                const record = {
-                    requestor: formData.get('requestor') || '',
-                    department: formData.get('department') || '',
-                    finas_transport: formData.get('finas_transport') || '',
-                    departure_date: formData.get('departure_date') || '',
-                    departure_time: formData.get('departure_time') || '',
-                    departure_city: formData.get('departure_city') || '',
-                    departure_address: formData.get('departure_address') || '',
-                    trip_type: formData.get('trip_type') || '',
-                    contact_person: formData.get('contact_person') || '',
-                    contact_phone: formData.get('contact_phone') || '',
-                    special_requirements: formData.get('special_requirements') || '',
-                    io_number: formData.get('io_number') || '',
-                    confidential: formData.get('confidential') || '否',
-                    car_cover: formData.get('car_cover') || '否',
-                    arrival_city: formData.get('arrival_city') || '',
-                    destination_address: formData.get('destination_address') || '',
-                    receiver: formData.get('receiver') || '',
-                    receiver_phone: formData.get('receiver_phone') || '',
-                    transport_cycle: formData.get('transport_cycle') || '',
-                    expected_arrival_date: formData.get('expected_arrival_date') || ''
-                };
-                
-                try {
-                    saveRecord('TRANSPORT', record);
-                    showNotification('✅ 运输业务单已保存到本地');
-                    this.reset();
-                } catch (error) {
-                    showError('❌ 提交失败，请重试！');
-                }
-            });
         });
 
-        // 重置表单
-        function resetForm(type) {
-            (type === 'service' ? document.getElementById('service-form-data') : document.getElementById('transport-form-data')).reset();
+        // 重置表单（简化，仅服务需求单）
+        function resetForm() {
+            document.getElementById('service-form-data').reset();
             showNotification('已清空表单（本地存储记录未删除）');
         }
     </script>
