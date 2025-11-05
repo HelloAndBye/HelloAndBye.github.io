@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>车辆服务管理系统</title>
-    <!-- 引入Tailwind CSS（样式库） -->
+    <title>车辆服务管理系统（纯静态版）</title>
+    <!-- 引入Tailwind CSS（样式库，CDN） -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入Font Awesome（图标库） -->
+    <!-- 引入Font Awesome（图标库，CDN） -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入SheetJS（Excel处理库，CDN） -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- 自定义Tailwind样式 -->
     <script>
@@ -43,16 +45,16 @@
     <header class="bg-white shadow-sm py-4 px-6 md:px-12">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-primary">
-                <i class="fa fa-car mr-2"></i>车辆服务管理系统
+                <i class="fa fa-car mr-2"></i>车辆服务管理系统（纯静态版）
             </h1>
             <div class="flex items-center space-x-4">
-                <!-- 下载Excel按钮（带提示） -->
-                <a href="/download_excel" class="flex items-center px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition shadow-sm" title="无数据时下载空白模板，有数据时下载包含所有记录的文件">
+                <!-- 下载Excel按钮（前端触发） -->
+                <button id="download-btn" class="flex items-center px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition shadow-sm" title="无数据时下载空白模板，有数据时下载包含所有记录的文件">
                     <i class="fa fa-download mr-2"></i>下载Excel（模板/数据）
-                </a>
+                </button>
                 <!-- 下载说明 -->
                 <div class="mt-2 text-xs text-gray-500 text-center md:text-left">
-                    <span>📌 无数据→空白模板 | 有数据→完整数据</span>
+                    <span>📌 无数据→空白模板 | 有数据→本地存储数据</span>
                 </div>
                 <!-- 当前日期 -->
                 <div class="text-sm text-gray-500">
@@ -96,7 +98,7 @@
             <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
                 Pooling服务需求单 <small class="text-gray-500 text-base font-normal">Pooling Service Booking</small>
             </h2>
-            <form id="service-form-data" method="post" action="/submit_service_form">
+            <form id="service-form-data">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">车号 (Finas)</label>
@@ -151,7 +153,7 @@
                 </div>
                 
                 <div class="flex justify-end">
-                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetForm()">
+                    <button type="button" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition mr-3" onclick="resetForm('service')">
                         <i class="fa fa-save mr-1"></i> 保存草稿
                     </button>
                     <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
@@ -166,7 +168,7 @@
             <h2 class="text-xl font-bold mb-6 pb-2 border-b border-gray-100">
                 运输业务单 <small class="text-gray-500 text-base font-normal">Vehicle Transportation</small>
             </h2>
-            <form id="transport-form-data" method="post" action="/submit_transport_form">
+            <form id="transport-form-data">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">申请人 (Requestor)</label>
@@ -262,11 +264,17 @@
     <!-- 页脚 -->
     <footer class="bg-white border-t border-gray-200 py-6 px-6 md:px-12">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            <p>© 2025 车辆服务管理系统 - 版权所有 | 内置Excel模板 + 数据导出功能</p>
+            <p>© 2025 车辆服务管理系统（纯静态版）| 无后端依赖 | 数据存储在当前浏览器</p>
         </div>
     </footer>
 
     <script>
+        // 初始化本地存储键名
+        const STORAGE_KEY = {
+            SERVICE: 'vehicle_service_records',
+            TRANSPORT: 'vehicle_transport_records'
+        };
+
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             // 显示当前日期
@@ -281,6 +289,7 @@
             const transportForm = document.getElementById('transport-form');
             const refuelCheckbox = document.getElementById('service-refuel');
             const backButton = document.getElementById('back-to-service');
+            const downloadBtn = document.getElementById('download-btn');
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notification-text');
             const errorNotification = document.getElementById('error-notification');
@@ -320,15 +329,140 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
-            // 外部加油勾选事件（核心修改：触发下载，不跳转）
+            // -------------- 核心功能：本地存储操作 --------------
+            // 获取本地存储的记录
+            function getStoredRecords(type) {
+                const records = localStorage.getItem(STORAGE_KEY[type]);
+                return records ? JSON.parse(records) : [];
+            }
+            
+            // 保存记录到本地存储
+            function saveRecord(type, record) {
+                const records = getStoredRecords(type);
+                records.push({ ...record, createTime: new Date().toLocaleString() });
+                localStorage.setItem(STORAGE_KEY[type], JSON.stringify(records));
+            }
+            
+            // -------------- 核心功能：Excel生成与下载 --------------
+            // 创建空白模板（与原Excel结构一致）
+            function createBlankTemplate() {
+                // 服务需求单模板列
+                const serviceColumns = [
+                    "车号 (Finas)", "车辆位置 (Vehicle Location)", "钥匙位置 (Key Position)",
+                    "预计交车时间 (Vehicle Hand Time)", "外部加油", "需求加油量 (L)",
+                    "充电", "充电到 (%)", "搭电", "TCC内挪车", "洗车", "车辆维修", "创建时间"
+                ];
+                // 运输业务单模板列
+                const transportColumns = [
+                    "申请人 (Requestor)", "部门 (Department)", "车号 (FiNAS)",
+                    "发车日期 (Date)", "发车时间 (Time)", "出发城市", "发车地址 (Departure)",
+                    "到达城市", "目的地 (Destination)", "发车人 (Contact Person)",
+                    "联系电话 (Mobile)", "收车人 (Receiver)", "收车人电话 (Mobile)",
+                    "特殊需求", "保密车 (Confidential)", "车衣 (Cover)", "创建时间"
+                ];
+                
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                // 创建空白工作表
+                const serviceWs = XLSX.utils.aoa_to_sheet([serviceColumns]);
+                const transportWs = XLSX.utils.aoa_to_sheet([transportColumns]);
+                // 添加工作表到工作簿（保持原工作表名称）
+                XLSX.utils.book_append_sheet(wb, serviceWs, 'Pooling服务需求单Pooling Service ');
+                XLSX.utils.book_append_sheet(wb, transportWs, '运输业务单Transportation');
+                
+                return wb;
+            }
+            
+            // 生成含数据的Excel
+            function createDataExcel() {
+                const wb = createBlankTemplate();
+                
+                // 获取本地存储的服务需求单数据
+                const serviceRecords = getStoredRecords('SERVICE');
+                if (serviceRecords.length > 0) {
+                    const serviceWs = wb.Sheets['Pooling服务需求单Pooling Service '];
+                    // 转换数据为工作表格式（从第2行开始填充）
+                    const serviceData = serviceRecords.map(record => [
+                        record.finas || '',
+                        record.vehicle_location || '',
+                        record.key_position || '',
+                        record.hand_time || '',
+                        record.service_refuel ? '是' : '否',
+                        record.refueling_amount || '',
+                        record.service_charge ? '是' : '否',
+                        record.charge_percentage || '',
+                        record.service_start ? '是' : '否',
+                        record.service_move ? '是' : '否',
+                        record.service_wash ? '是' : '否',
+                        record.service_repair ? '是' : '否',
+                        record.createTime || ''
+                    ]);
+                    // 填充数据到工作表
+                    XLSX.utils.sheet_add_aoa(serviceWs, serviceData, { origin: 1 });
+                }
+                
+                // 获取本地存储的运输业务单数据
+                const transportRecords = getStoredRecords('TRANSPORT');
+                if (transportRecords.length > 0) {
+                    const transportWs = wb.Sheets['运输业务单Transportation'];
+                    // 转换数据为工作表格式（从第2行开始填充）
+                    const transportData = transportRecords.map(record => [
+                        record.requestor || '',
+                        record.department || '',
+                        record.finas_transport || '',
+                        record.departure_date || '',
+                        record.departure_time || '',
+                        record.departure_city || '',
+                        record.departure_address || '',
+                        record.arrival_city || '',
+                        record.destination_address || '',
+                        record.contact_person || '',
+                        record.contact_phone || '',
+                        record.receiver || '',
+                        record.receiver_phone || '',
+                        record.special_requirements || '',
+                        record.confidential ? '是' : '否',
+                        record.car_cover ? '是' : '否',
+                        record.createTime || ''
+                    ]);
+                    // 填充数据到工作表
+                    XLSX.utils.sheet_add_aoa(transportWs, transportData, { origin: 1 });
+                }
+                
+                return wb;
+            }
+            
+            // 下载Excel文件
+            function downloadExcel() {
+                try {
+                    // 检查是否有数据
+                    const hasData = getStoredRecords('SERVICE').length > 0 || getStoredRecords('TRANSPORT').length > 0;
+                    // 生成工作簿
+                    const wb = hasData ? createDataExcel() : createBlankTemplate();
+                    // 生成文件名
+                    const fileName = hasData 
+                        ? `车辆服务数据_${new Date().toLocaleString().replace(/[:/ ]/g, '')}.xlsx`
+                        : '车辆服务空白模板.xlsx';
+                    
+                    // 下载文件（SheetJS内置方法，处理中文文件名）
+                    XLSX.writeFile(wb, fileName);
+                    showNotification(`✅ ${hasData ? '含数据Excel' : '空白模板'}下载成功`);
+                } catch (error) {
+                    showError(`❌ 下载失败：${error.message}`);
+                    console.error('Excel下载错误:', error);
+                }
+            }
+            
+            // -------------- 事件绑定 --------------
+            // 外部加油勾选触发下载
             refuelCheckbox.addEventListener('change', function() {
                 if (this.checked) {
-                    // 触发Excel下载（跳转到下载路由）
-                    window.location.href = '/download_excel';
-                    // 显示下载提示
-                    showNotification('已触发Excel下载（含外部加油服务模板）');
+                    downloadExcel();
                 }
             });
+            
+            // 下载按钮触发下载
+            downloadBtn.addEventListener('click', downloadExcel);
             
             // 标签页切换事件
             serviceTab.addEventListener('click', switchToService);
@@ -337,51 +471,77 @@
             // 返回按钮事件
             backButton.addEventListener('click', switchToService);
 
-            // 服务需求单提交处理
-            document.getElementById('service-form-data').addEventListener('submit', async function(e) {
+            // 服务需求单提交处理（保存到本地存储）
+            document.getElementById('service-form-data').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
+                const record = {
+                    finas: formData.get('finas') || '',
+                    vehicle_location: formData.get('vehicle_location') || '',
+                    key_position: formData.get('key_position') || '',
+                    hand_time: formData.get('hand_time') || '',
+                    service_refuel: formData.get('service_refuel') === 'on',
+                    refueling_amount: formData.get('refueling_amount') || '',
+                    service_charge: formData.get('service_charge') === 'on',
+                    charge_percentage: formData.get('charge_percentage') || '',
+                    service_start: formData.get('service_start') === 'on',
+                    service_move: formData.get('service_move') === 'on',
+                    service_wash: formData.get('service_wash') === 'on',
+                    service_repair: formData.get('service_repair') === 'on'
+                };
+                
                 try {
-                    const response = await fetch('/submit_service_form', { method: 'POST', body: formData });
-                    const result = await response.json();
-                    showNotification(result.message);
+                    saveRecord('SERVICE', record);
+                    showNotification('✅ 服务需求单已保存到本地');
                     this.reset(); // 提交后重置表单
                 } catch (error) {
-                    showError('服务需求单提交失败，请重试！');
+                    showError('❌ 提交失败，请重试！');
                     console.error('提交错误:', error);
                 }
             });
 
-            // 运输业务单提交处理
-            document.getElementById('transport-form-data').addEventListener('submit', async function(e) {
+            // 运输业务单提交处理（保存到本地存储）
+            document.getElementById('transport-form-data').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
+                const record = {
+                    requestor: formData.get('requestor') || '',
+                    department: formData.get('department') || '',
+                    finas_transport: formData.get('finas_transport') || '',
+                    departure_date: formData.get('departure_date') || '',
+                    departure_time: formData.get('departure_time') || '',
+                    departure_city: formData.get('departure_city') || '',
+                    departure_address: formData.get('departure_address') || '',
+                    arrival_city: formData.get('arrival_city') || '',
+                    destination_address: formData.get('destination_address') || '',
+                    contact_person: formData.get('contact_person') || '',
+                    contact_phone: formData.get('contact_phone') || '',
+                    receiver: formData.get('receiver') || '',
+                    receiver_phone: formData.get('receiver_phone') || '',
+                    special_requirements: formData.get('special_requirements') || '',
+                    confidential: formData.get('confidential') === 'on',
+                    car_cover: formData.get('car_cover') === 'on'
+                };
+                
                 try {
-                    const response = await fetch('/submit_transport_form', { method: 'POST', body: formData });
-                    const result = await response.json();
-                    showNotification(result.message);
+                    saveRecord('TRANSPORT', record);
+                    showNotification('✅ 运输业务单已保存到本地');
                     this.reset(); // 提交后重置表单
                 } catch (error) {
-                    showError('运输业务单提交失败，请重试！');
+                    showError('❌ 提交失败，请重试！');
                     console.error('提交错误:', error);
-                }
-            });
-
-            // 下载Excel按钮事件
-            document.querySelector('a[href="/download_excel"]').addEventListener('click', async function(e) {
-                try {
-                    showNotification('正在准备下载文件...');
-                } catch (error) {
-                    e.preventDefault();
-                    showError('下载失败，请检查服务是否正常！');
                 }
             });
         });
 
         // 重置表单函数
-        function resetForm() {
-            document.getElementById('service-form-data').reset();
-            showNotification('已保存草稿（仅清空表单，实际草稿功能需后端扩展）');
+        function resetForm(type) {
+            if (type === 'service') {
+                document.getElementById('service-form-data').reset();
+            } else {
+                document.getElementById('transport-form-data').reset();
+            }
+            showNotification('已清空表单（本地存储记录未删除）');
         }
     </script>
 </body>
